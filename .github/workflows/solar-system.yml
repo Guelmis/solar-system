@@ -27,7 +27,18 @@ jobs:
               run: npm install
               
             - name: Unit testing
-              run: npm test  
+              run: npm test
+            
+            - name: Unit testing
+              run: ls -a
+
+            - name: Archive Test Result
+              uses: actions/upload-artifact@v3
+              with:
+                name: Mocha-Test-Result
+                path: ./test-results.xml
+
+              
 
 
 
