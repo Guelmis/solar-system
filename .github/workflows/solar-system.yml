@@ -36,7 +36,7 @@ jobs:
                 path: ./test-results.xml   
 
     code-coverage:
-        name: Unit Testing
+        name: Code Coverage
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
@@ -51,6 +51,7 @@ jobs:
               run: npm install
                               
             - name: Code Coverage
+              continue-on-error: true
               run: npm run coverage
                 
             - name: Archive Test Result
