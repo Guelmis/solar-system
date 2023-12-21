@@ -24,14 +24,19 @@ jobs:
               with:
                node-version: 18
 
-            - name: Cache NPM dependencies
-              uses: actions/cache@v3
+            - name: Composite Action - Cache & Install NPM Packages
+              uses: ./.github/custom-actions/npm-action/
               with:
-                path: node_modules # Directory where the dependencies are generally added
-                key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}   
+                path-of-folder: node_modules   
+
+            # - name: Cache NPM dependencies
+            #   uses: actions/cache@v3
+            #   with:
+            #     path: node_modules # Directory where the dependencies are generally added
+            #     key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}   
             
-            - name: Install dependencies
-              run: npm install
+            # - name: Install dependencies
+            #   run: npm install
               
             - name: Unit testing
               run: npm test
@@ -57,15 +62,19 @@ jobs:
             #   uses: actions/setup-node@v3
             #   with:
             #     node-version: 18
-
-            - name: Cache NPM dependencies
-              uses: actions/cache@v3
+            - name: Composite Action - Cache & Install NPM Packages
+              uses: ./.github/custom-actions/npm-action/
               with:
-                path: node_modules # Directory where the dependencies are generally added
-                key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }} 
+                path-of-folder: node_modules
 
-            - name: Install dependencies
-              run: npm install
+            # - name: Cache NPM dependencies
+            #   uses: actions/cache@v3
+            #   with:
+            #     path: node_modules # Directory where the dependencies are generally added
+            #     key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }} 
+
+            # - name: Install dependencies
+            #   run: npm install
                               
             - name: Code Coverage
               continue-on-error: true
@@ -78,7 +87,7 @@ jobs:
                 path: ./coverage
                 retention-days: 5   
 
-    reports-s3:
+    # reports-s3:
         name: AWS S3 - Upload Reports
         needs: [code-coverage, unit-testing]
         runs-on: ubuntu-latest
