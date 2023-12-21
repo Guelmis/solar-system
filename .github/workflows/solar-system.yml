@@ -11,79 +11,91 @@ env:
     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }} 
 
 jobs:
-    unit-testing:
-        name: Unit Testing
-        services:
-         mongo-db: 
-           image: siddhart67/mongo-db:non-prod
-           ports:
-            - 27017:27017
+    # unit-testing:
+    #     name: Unit Testing
+    #     services:
+    #      mongo-db: 
+    #        image: siddhart67/mongo-db:non-prod
+    #        ports:
+    #         - 27017:27017
 
-        env:
-            MONGO_URI: 'mongodb//localhost:27017/superData'
-            MONGO_USERNAME: non-prod-user
-            MONGO_PASSWORD: non-prod-password         
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-            
-            - name: Setup NodeJS Version - 18
-              uses: actions/setup-node@v3
-              with:
-               node-version: 18
-
-            - name: Cache NPM dependencies
-              uses: actions/cache@v3
-              with:
-                path: node_modules # Directory where the dependencies are generally added
-                key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}   
-            
-            - name: Install dependencies
-              run: npm install
-              
-            - name: Unit testing
-              run: npm test
-              id: unit_testing
-
-            - name: Archive Test Result
-              if: failure() && steps.unit_testing.outcome == 'failure' || steps.unit_testing.outcome == 'success'
-              uses: actions/upload-artifact@v3
-              with:
-                name: Mocha-Test-Result
-                path: ./test-results.xml   
-
-    # code-coverage:
-    #     name: Code Coverage
+    #     env:
+    #         MONGO_URI: 'mongodb://localhost:27017/superData'
+    #         MONGO_USERNAME: non-prod-user
+    #         MONGO_PASSWORD: non-prod-password         
     #     runs-on: ubuntu-latest
     #     steps:
     #         - name: Checkout Repository
     #           uses: actions/checkout@v4
-                            
+            
     #         - name: Setup NodeJS Version - 18
     #           uses: actions/setup-node@v3
     #           with:
-    #             node-version: 18
+    #            node-version: 18
 
     #         - name: Cache NPM dependencies
     #           uses: actions/cache@v3
     #           with:
     #             path: node_modules # Directory where the dependencies are generally added
-    #             key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }} 
-
+    #             key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}   
+            
     #         - name: Install dependencies
     #           run: npm install
-                              
-    #         - name: Code Coverage
-    #           continue-on-error: true
-    #           run: npm run coverage
-                
+              
+    #         - name: Unit testing
+    #           run: npm test
+    #           id: unit_testing
+
     #         - name: Archive Test Result
+    #           if: failure() && steps.unit_testing.outcome == 'failure' || steps.unit_testing.outcome == 'success'
     #           uses: actions/upload-artifact@v3
     #           with:
-    #             name: Code-Coverage-Result
-    #             path: ./coverage
-    #             retention-days: 5   
+    #             name: Mocha-Test-Result
+    #             path: ./test-results.xml   
+
+    code-coverage:
+        name: Code Coverage
+        runs-on: ubuntu-latest
+        container:
+            image: node:18
+        services:
+         mongo-db: 
+           image: siddhart67/mongo-db:non-prod
+           options: 
+              --name mongo
+            
+        env:
+            MONGO_URI: 'mongodb://mongo:27017/superData'
+            MONGO_USERNAME: non-prod-user
+            MONGO_PASSWORD: non-prod-password        
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+                            
+            # - name: Setup NodeJS Version - 18
+            #   uses: actions/setup-node@v3
+            #   with:
+            #     node-version: 18
+
+            - name: Cache NPM dependencies
+              uses: actions/cache@v3
+              with:
+                path: node_modules # Directory where the dependencies are generally added
+                key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }} 
+
+            - name: Install dependencies
+              run: npm install
+                              
+            - name: Code Coverage
+              continue-on-error: true
+              run: npm run coverage
+                
+            - name: Archive Test Result
+              uses: actions/upload-artifact@v3
+              with:
+                name: Code-Coverage-Result
+                path: ./coverage
+                retention-days: 5   
 
     # docker:
     #     name: Containerization
